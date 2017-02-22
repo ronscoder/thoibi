@@ -42,7 +42,7 @@ export class AppComponent implements OnInit {
         this.loading_text = " 👅 No complaints! Sign in & Tap (+) to start adding complaints";
       if (!this.messages.length && this._isAuthenticated)
         this._ifNewComplaint = true;
-      console.log(this.messages);
+      // console.log(this.messages);
     });
   }
   /*messages = [
@@ -79,7 +79,7 @@ export class AppComponent implements OnInit {
   ]*/
   msgindex: number;
   showComments(index: number) {
-    console.log(index);
+    // console.log(index);
     this.msgindex = index;
   }
   addComment(key, text: string) {
@@ -137,7 +137,7 @@ export class AppComponent implements OnInit {
           this._isAuthenticated = true;
           this._user = auth().currentUser.toJSON();
           this._username = this._user.displayName;
-          console.log(this._user)
+          // console.log(this._user)
         });
     else
       auth().signOut().then(res => {
