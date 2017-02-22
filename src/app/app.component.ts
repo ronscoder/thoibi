@@ -39,7 +39,7 @@ export class AppComponent implements OnInit {
       });
       // _.sort()
       if (!this.messages.length)
-        this.loading_text = " 👅 No messages! Sign in & Tap (+) to add message";
+        this.loading_text = " 👅 No complaints! Sign in & Tap (+) to start adding complaints";
       if (!this.messages.length && this._isAuthenticated)
         this._ifNewComplaint = true;
       console.log(this.messages);
