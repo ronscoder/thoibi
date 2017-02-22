@@ -37,7 +37,6 @@
         font-family: Verdana, Geneva, Tahoma, sans-serif;
         transition: transform 400ms;
         max-width: 30em;
-        
     }
     
     .bubble:hover {
@@ -188,7 +187,8 @@
     .fav {
         cursor: pointer;
     }
-    .owner{
+    
+    .owner {
         position: relative;
         display: inline-block;
         top: 0;
@@ -197,13 +197,13 @@
         font-size: 9px;
         font-family: Arial, Helvetica, sans-serif;
     }
-    .subtitle{
+    
+    .subtitle {
         font-size: .5em;
         font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
         color: darkred;
         cursor: pointer;
     }
-
 </style>
 <div class="content">
     <div id="myModal" class="modal" *ngIf="!_isAuthenticated && _ifNewComplaint && false">
@@ -213,11 +213,17 @@
             <button (click)="toggleNewComplaint()" class="close">Cancel</button>
         </div>
     </div>
+    <div class="modal" *ngIf="!_isAuthenticated">
+        <div class="modal-content" style="margin: auto">
+            <h1 (click)="signin()" style="cursor: pointer"> ✊🏼 Login to continue</h1>
+        </div>
+    </div>
     <div class="header">
         <header>
-            {{_username}} Gi Pendaba Fongdokfam! 👩🏻   🤦‍  🙋‍ <div class="subtitle" (click)="signin(); ">{{_isAuthenticated? "Logout 😡": "Login 😉"}}</div>
+            {{_username}} Gi Pendaba Fongdokfam! 👩🏻 🤦‍ 🙋‍
+            <div class="subtitle" (click)="signin(); ">{{_isAuthenticated? "Logout 😡": "Login 😉"}}</div>
         </header>
-        <button (click)="toggleNewComplaint()" class="add">+</button>
+        <button (click)="toggleNewComplaint()" class="add" *ngIf="_isAuthenticated">+</button>
     </div>
     <div class="modal" *ngIf="_ifNewComplaint && _isAuthenticated">
         <div class="bubble cinput" style="width: 30em; padding: 1em .5em;">
@@ -225,14 +231,14 @@
             <button (click)="toggleNewComplaint()" class="close">Cancel</button>
         </div>
     </div>
-    <div class="container">
 
+    <div class="container">
         <div *ngIf="!messages.length">
             <i>{{loading_text}}</i>
         </div>
         <div *ngFor="let msg of messages, let i = index">
             <div class="bubble">
-                <span class="owner">{{msg.value.user?.displayName}}</span> 
+                <span class="owner">{{msg.value.user?.displayName}}</span>
                 <div class="text">
                     <p>{{msg.value.text}}</p>
                 </div>
