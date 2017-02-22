@@ -30,12 +30,14 @@
     .bubble {
         margin-top: 2em;
         padding: 8px;
-        border-radius: 1em 1em 0 1em;
+        border-radius: 0em 1em 1em 1em;
         background: lightpink;
         box-shadow: 1px 2px 1em;
         /*color: whitesmoke;*/
         font-family: Verdana, Geneva, Tahoma, sans-serif;
         transition: transform 400ms;
+        max-width: 30em;
+        
     }
     
     .bubble:hover {
@@ -96,8 +98,7 @@
     }
     
     ul.comments li:hover {
-        border-bottom: 1px solid mediumvioletred;
-        border-left: 1px solid mediumvioletred;
+        background: hsla(0, 20%, 70%, .3)
     }
     
     .section-comment {
@@ -152,7 +153,7 @@
     }
     
     .modal {
-        display: block;
+        display: flex;
         /* Hidden by default */
         position: fixed;
         /* Stay in place */
@@ -161,14 +162,11 @@
         width: 100%;
         /* Full width */
         height: 100%;
-        
-        margin: 15% auto;
+        background-color: hsla(120, 17%, 67%, .53);
         /* Full height */
         overflow: auto;
         /* Enable scroll if needed */
-        
         /* Fallback color */
-        
         /* Black w/ opacity */
     }
     /* Modal Content/Box */
@@ -177,20 +175,38 @@
         background-color: #fefefe;
         margin: auto;
         /* 15% from the top and centered */
-        padding: 20px;
+        padding: 10px;
         border: 1px solid #888;
         width: 20em;
         /* Could be more or less, depending on screen size */
     }
-    .cinput{
+    
+    .cinput {
         margin: auto;
     }
-    .fav{
+    
+    .fav {
         cursor: pointer;
     }
+    .owner{
+        position: relative;
+        display: inline-block;
+        top: 0;
+        color: deeppink;
+        padding: 0;
+        font-size: 9px;
+        font-family: Arial, Helvetica, sans-serif;
+    }
+    .subtitle{
+        font-size: .5em;
+        font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+        color: darkred;
+        cursor: pointer;
+    }
+
 </style>
 <div class="content">
-    <div id="myModal" class="modal" *ngIf="!_isAuthenticated && _ifNewComplaint">
+    <div id="myModal" class="modal" *ngIf="!_isAuthenticated && _ifNewComplaint && false">
         <div class="modal-content">
             <h4>Enter passcode</h4>
             <input tabindex=1 #pass type="password" (keyup.enter)="authenticate(pass.value)">
@@ -199,7 +215,7 @@
     </div>
     <div class="header">
         <header>
-            Thoibi Gi Pendaba Fongdokfam! 👩🏻
+            {{_username}} Gi Pendaba Fongdokfam! 👩🏻   🤦‍  🙋‍ <div class="subtitle" (click)="signin(); ">{{_isAuthenticated? "Logout 😡": "Login 😉"}}</div>
         </header>
         <button (click)="toggleNewComplaint()" class="add">+</button>
     </div>
@@ -216,8 +232,9 @@
         </div>
         <div *ngFor="let msg of messages, let i = index">
             <div class="bubble">
+                <span class="owner">{{msg.value.user?.displayName}}</span> 
                 <div class="text">
-                    {{msg.value.text}}
+                    <p>{{msg.value.text}}</p>
                 </div>
                 <div class="timestamp">
                     {{msg.value.time | date:'mediumDate'}}
@@ -232,7 +249,7 @@
                     <input type="text" #newcomment placeholder="Type your comment..." (keyup.enter)="addComment(msg.key, newcomment.value); newcomment.value=''">
                     <ul class="comments">
                         <li *ngFor="let comment of msg.comments">
-                            {{comment}}
+                            <p><span class="owner"><small>{{comment.user?.displayName}}</small></span> {{comment.comment}}</p>
                         </li>
                     </ul>
                 </div>
