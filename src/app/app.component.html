@@ -1,3 +1,243 @@
-<h1>
-  {{title}}
-</h1>
+<style>
+    * {
+        box-sizing: border-box;
+    }
+    
+    body {
+        background: linear-gradient(pink, white)
+    }
+    
+    .content {
+        margin: auto;
+        width: 100%;
+    }
+    
+    .container {
+        display: flex;
+        width: 100%;
+        padding: 0px 1em;
+        height: 90%;
+        margin: auto;
+        flex-wrap: wrap;
+        justify-content: space-around;
+        align-items: flex-start;
+        column-count: 2;
+        top: 80px;
+        position: absolute;
+        flex-direction: row-reverse;
+    }
+    
+    .bubble {
+        margin-top: 2em;
+        padding: 8px;
+        border-radius: 1em 1em 0 1em;
+        background: lightpink;
+        box-shadow: 1px 2px 1em;
+        /*color: whitesmoke;*/
+        font-family: Verdana, Geneva, Tahoma, sans-serif;
+        transition: transform 400ms;
+    }
+    
+    .bubble:hover {
+        transform: scale(1.1);
+    }
+    
+    .bubble:hover + .speaker {
+        transform: scale(1.3);
+    }
+    
+    div {
+        border: 0 solid green;
+    }
+    
+    .speaker {
+        left: -1px;
+        z-index: -1;
+    }
+    
+    .timestamp {
+        font-size: 10px;
+        text-align: right;
+    }
+    
+    .actions {
+        display: inline-flex;
+        position: relative;
+        bottom: 10%;
+        transition: transform 400ms;
+        font-size: 9px;
+        justify-content: center;
+    }
+    
+    .actions:hover {
+        transform: scale(1.1);
+    }
+    
+    .x-nav a {
+        text-decoration-style: none;
+        padding: 0px 1em;
+    }
+    
+    .comments-btn {
+        cursor: pointer;
+    }
+    
+    ul.comments {
+        list-style: none;
+        list-style-position: outside;
+        flex-direction: column;
+        font-size: 9px;
+        padding: 0;
+    }
+    
+    ul.comments li {
+        padding: .5em 0 2px .5em;
+        box-shadow: 1px 1px deeppink;
+    }
+    
+    ul.comments li:hover {
+        border-bottom: 1px solid mediumvioletred;
+        border-left: 1px solid mediumvioletred;
+    }
+    
+    .section-comment {
+        padding: 0px 1em;
+        margin-top: 4px;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    input {
+        background: lightgoldenrodyellow;
+        opacity: 0.8;
+        border-radius: 2px;
+        border-style: none;
+        padding: 2px;
+        font-family: Verdana, Geneva, Tahoma, sans-serif;
+    }
+    
+    .fav:hover {
+        transform: scale(1.5);
+    }
+    
+    .header {
+        position: fixed;
+        z-index: 1;
+        display: flex;
+        justify-content: space-between;
+        background: linear-gradient(cornflowerblue, ghostwhite);
+        margin: auto;
+        width: 100%;
+        padding: 0px 1em;
+        border-radius: 5px;
+        box-shadow: 1px 1px 10px;
+        font-size: 1.5em;
+        font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+    }
+    
+    .add {
+        border: none;
+        background: transparent;
+        font-size: 2em;
+        cursor: pointer;
+    }
+    
+    .close {
+        border: none;
+        background: none;
+    }
+    
+    .fav {
+        text-decoration: none;
+    }
+    
+    .modal {
+        display: block;
+        /* Hidden by default */
+        position: fixed;
+        /* Stay in place */
+        z-index: 1;
+        /* Sit on top */
+        width: 100%;
+        /* Full width */
+        height: 100%;
+        
+        margin: 15% auto;
+        /* Full height */
+        overflow: auto;
+        /* Enable scroll if needed */
+        background-color: rgb(0, 0, 0);
+        /* Fallback color */
+        background-color: rgba(0, 0, 0, 0.4);
+        /* Black w/ opacity */
+    }
+    /* Modal Content/Box */
+    
+    .modal-content {
+        background-color: #fefefe;
+        margin: auto;
+        /* 15% from the top and centered */
+        padding: 20px;
+        border: 1px solid #888;
+        width: 20em;
+        /* Could be more or less, depending on screen size */
+    }
+    .cinput{
+        margin: auto;
+    }
+</style>
+<div class="content">
+    <div id="myModal" class="modal" *ngIf="!_isAuthenticated && _ifNewComplaint">
+        <div class="modal-content">
+            <h4>Enter passcode</h4>
+            <input tabindex=1 #pass type="password" (keyup.enter)="authenticate(pass.value)">
+            <button (click)="toggleNewComplaint()" class="close">Cancel</button>
+        </div>
+    </div>
+    <div class="header">
+        <header>
+            Thoibi Gi Pendaba Fongdokfam! 👩🏻
+        </header>
+        <button (click)="toggleNewComplaint()" class="add">+</button>
+    </div>
+    <div class="modal" *ngIf="_ifNewComplaint && _isAuthenticated">
+        <div class="bubble cinput" style="width: 30em; padding: 1em .5em;">
+            <input style="width: 100%; height: 3em;" type="text" #newcomplaint placeholder="Type your complaint..." (keyup.enter)="addComplaint(newcomplaint.value); newcomplaint.value=''">
+            <button (click)="toggleNewComplaint()" class="close">Cancel</button>
+        </div>
+    </div>
+    <div class="container">
+
+        <div *ngIf="!messages.length">
+            <i>{{loading_text}}</i>
+        </div>
+        <div *ngFor="let msg of messages, let i = index">
+            <div class="bubble">
+                <div class="text">
+                    {{msg.value.text}}
+                </div>
+                <div class="timestamp">
+                    {{msg.value.time | date:'mediumDate'}}
+                </div>
+                <div class="actions x-nav">
+                    <a (click)="fav(msg.key, msg.value.like_count); false" class="fav">💚</a>{{msg.value.like_count}}
+                    <a class="comments-btn" (click)="showComments(i, msg.value.like_count)">Comments ({{msg.comments.length}})
+                </a>
+                </div>
+                <div *ngIf="i === msgindex" class="section-comment">
+                    <hr>
+                    <input type="text" #newcomment placeholder="Type your comment..." (keyup.enter)="addComment(msg.key, newcomment.value); newcomment.value=''">
+                    <ul class="comments">
+                        <li *ngFor="let comment of msg.comments">
+                            {{comment}}
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!--div class="speaker">
+            <img src="assets/speaker.jpg" height="50px">
+        </div-->
+        </div>
+    </div>
+</div>
