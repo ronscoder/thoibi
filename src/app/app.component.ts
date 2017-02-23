@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { initializeApp, database, app } from 'firebase';
+import { initializeApp, database, app, auth } from 'firebase';
 var _ = require('underscore');
 // import { _ } from 'underscore.js';
 // import * as _ from 'underscore';
@@ -22,10 +22,18 @@ export class AppComponent implements OnInit {
   _newcomplaint: string = null;
   _ifNewComplaint: boolean = false;
   _isAuthenticated: boolean = false;
-  loading_text ="Loading messages..."
+  loading_text = "Loading messages...";
+  _username = "Kannagi";
+  _user: any;
   ngOnInit() {
-
     initializeApp(config);
+    if (!this._isAuthenticated)
+      // this.signin();
+      return;
+    this.loadComplaints();
+
+  }
+  loadComplaints() {
     database().ref('people/thoibi').limitToLast(50).on('value', (snap) => {
       //  this.messages = snap.val();
       // this.messages = _.values(snap.val());
@@ -35,11 +43,11 @@ export class AppComponent implements OnInit {
         this.messages.push({ key: key, value, comments: _.values(value.comments) });
       });
       // _.sort()
-      if(!this.messages.length)
-      this.loading_text = " 👅 No messages! Tap (+) to add message, if you have the passcode";
+      if (!this.messages.length)
+        this.loading_text = " 👅 No complaints! Sign in & Tap (+) to start adding complaints";
       if (!this.messages.length && this._isAuthenticated)
         this._ifNewComplaint = true;
-      console.log(this.messages);
+      // console.log(this.messages);
     });
   }
   /*messages = [
@@ -76,27 +84,34 @@ export class AppComponent implements OnInit {
   ]*/
   msgindex: number;
   showComments(index: number) {
-    console.log(index);
+    // console.log(index);
     this.msgindex = index;
   }
   addComment(key, text: string) {
     // console.log(text);
     // this.messages[this.msgindex].comments.push().;
     // this.snap.
-    database().ref('/people/thoibi/' + key).child('comments').push(text)
+    let comment = {
+      user: this._user,
+      comment: text
+    }
+    database().ref('/people/thoibi/' + key).child('comments').push(comment)
   }
   fav(key, lastval: number) {
     // console.log(i);
     // this.messages[i].like_count += 1;
     // console.log(this.messages[i].like_count);
     // database().ref('/people/thoibi').pus
+
     database().ref('/people/thoibi/' + key).child('like_count').set(lastval + 1);
+    database().ref('/people/thoibi/' + key).child('liked_by').push(this._user);
   }
   addComplaint(text: string) {
     if (!text.length)
       return
     this._newcomplaint = text;
     let msg = {
+      user: this._user,
       msgid: 4,
       text: text,
       time: Date.now(),
@@ -116,8 +131,26 @@ export class AppComponent implements OnInit {
 
     this._ifNewComplaint = !this._ifNewComplaint;
   }
-  authenticate(pass: number){
-    if(pass == 125)
+  authenticate(pass: number) {
+    if (pass == 125)
       this._isAuthenticated = true;
+  }
+  signin() {
+    if (!this._isAuthenticated)
+      auth().signInWithPopup(new auth.GoogleAuthProvider())
+        .then((res) => {
+          this._isAuthenticated = true;
+          this._user = auth().currentUser.toJSON();
+          this._username = this._user.displayName;
+          // console.log(this._user)
+          this.loadComplaints();
+        });
+    else
+      auth().signOut().then(res => {
+        this._isAuthenticated = false;
+        console.log("logged out successfully.")
+        this._user = null;
+        this._username = "Kannagi"
+      });
   }
 }
