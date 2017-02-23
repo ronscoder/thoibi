@@ -28,7 +28,12 @@ export class AppComponent implements OnInit {
   ngOnInit() {
     initializeApp(config);
     if (!this._isAuthenticated)
-      this.signin();
+      // this.signin();
+      return;
+    this.loadComplaints();
+
+  }
+  loadComplaints() {
     database().ref('people/thoibi').limitToLast(50).on('value', (snap) => {
       //  this.messages = snap.val();
       // this.messages = _.values(snap.val());
@@ -138,6 +143,7 @@ export class AppComponent implements OnInit {
           this._user = auth().currentUser.toJSON();
           this._username = this._user.displayName;
           // console.log(this._user)
+          this.loadComplaints();
         });
     else
       auth().signOut().then(res => {
